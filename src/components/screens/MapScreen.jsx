@@ -58,8 +58,8 @@ export default function MapScreen() {
     <div className="fixed inset-0 flex flex-col" style={{ background: '#1A1614' }}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3 flex-shrink-0 z-20 relative"
-        style={{ background: '#1A1614', borderBottom: '1px solid rgba(255,249,239,0.06)' }}
+        className="flex items-center justify-between px-4 py-3 flex-shrink-0 relative"
+        style={{ background: '#1A1614', borderBottom: '1px solid rgba(255,249,239,0.06)', zIndex: 1100 }}
       >
         <div>
           <span className="text-cream font-extrabold text-lg leading-none">
@@ -88,15 +88,30 @@ export default function MapScreen() {
           onMapClick={handleMapClick}
         />
 
-        {/* FAB */}
+        {/* FAB — positioned above the footer card (~140px tall) */}
         {!dropStep && (
           <button
             onClick={openDrop}
-            className="absolute bottom-6 right-5 z-30 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl"
-            style={{ background: '#B52900' }}
             aria-label="Resurrect a song"
+            style={{
+              position: 'absolute',
+              bottom: footerCollapsed ? 60 : 156,
+              right: 20,
+              zIndex: 1000,
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: '#B52900',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 20px rgba(181,41,0,0.5)',
+              transition: 'bottom 0.2s ease',
+            }}
           >
-            <span className="text-cream text-3xl font-light leading-none">+</span>
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 3v16M3 11h16" stroke="#FFF9EF" strokeWidth="2.2" strokeLinecap="round"/>
+            </svg>
           </button>
         )}
 
@@ -116,8 +131,8 @@ export default function MapScreen() {
         {/* Floating footer card */}
         {!dropStep && (
           <div
-            className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-safe"
-            style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
+            className="absolute bottom-0 left-0 right-0 px-4"
+            style={{ zIndex: 900, paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
           >
             <div
               className="rounded-2xl mx-auto overflow-hidden"

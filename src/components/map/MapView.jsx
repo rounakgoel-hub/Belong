@@ -36,7 +36,7 @@ export default function MapView({ pins, onPinClick, placingMode, placingPosition
         />
       ))}
 
-      {placingMode && <PlacingPin position={placingPosition} />}
+      {(placingMode || placingPosition) && <PlacingPin position={placingPosition} />}
     </MapContainer>
   )
 }

@@ -25,6 +25,9 @@ export function usePins() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pins' }, ({ new: pin }) => {
         if (pin.edition_id === EDITION_ID) setPins(prev => prev.map(p => p.id === pin.id ? pin : p))
       })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'pins' }, ({ old: pin }) => {
+        setPins(prev => prev.filter(p => p.id !== pin.id))
+      })
       .subscribe()
 
     return () => supabase.removeChannel(channel)
