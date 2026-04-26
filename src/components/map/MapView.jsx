@@ -1,5 +1,6 @@
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet'
-import { CHENNAI_CENTER, DEFAULT_ZOOM, TILE_URL, TILE_ATTRIBUTION } from '../../lib/constants'
+import { CHENNAI_CENTER, DEFAULT_ZOOM, TILE_URL_DARK, TILE_URL_LIGHT, TILE_ATTRIBUTION } from '../../lib/constants'
+import { useAppContext } from '../../context/AppContext'
 import PinMarker from './PinMarker'
 import PlacingPin from './PlacingPin'
 import { getAnonId } from '../../lib/anonId'
@@ -15,6 +16,8 @@ function ClickHandler({ onMapClick, placingMode }) {
 
 export default function MapView({ pins, onPinClick, placingMode, placingPosition, onMapClick }) {
   const myAnonId = getAnonId()
+  const { theme } = useAppContext()
+  const tileUrl = theme === 'light' ? TILE_URL_LIGHT : TILE_URL_DARK
 
   return (
     <MapContainer
@@ -22,9 +25,10 @@ export default function MapView({ pins, onPinClick, placingMode, placingPosition
       zoom={DEFAULT_ZOOM}
       zoomControl={false}
       attributionControl={false}
-      style={{ width: '100%', height: '100%', background: '#1A1614' }}
+      style={{ width: '100%', height: '100%', background: 'var(--bg)' }}
     >
-      <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
+      {/* key forces tile layer remount when theme switches */}
+      <TileLayer key={theme} url={tileUrl} attribution={TILE_ATTRIBUTION} />
       <ClickHandler onMapClick={onMapClick} placingMode={placingMode} />
 
       {pins.map(pin => (
