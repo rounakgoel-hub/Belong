@@ -75,7 +75,7 @@ export default function MapScreen() {
             className="text-right"
           >
             <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{pins.length} dead songs back</p>
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>tap to read every story</p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>Explore Chennai's living playlist →</p>
           </button>
           <button
             onClick={toggleTheme}

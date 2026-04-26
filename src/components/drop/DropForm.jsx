@@ -3,6 +3,12 @@ import { useSpotifySearch } from '../../hooks/useSpotifySearch'
 
 const MEMORY_MAX = 150
 
+const inputStyle = {
+  background: 'var(--surface2)',
+  border: '1px solid var(--border)',
+  color: 'var(--text)',
+}
+
 export default function DropForm({ onSubmit, onCancel, loading }) {
   const { query, setQuery, results, searching, error, clear } = useSpotifySearch()
   const [selected, setSelected] = useState(null)
@@ -39,13 +45,13 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
 
   return (
     <form onSubmit={handleSubmit} className="px-5 pb-8 pt-2 flex flex-col gap-4">
-      <p className="text-muted text-xs uppercase tracking-widest">The song</p>
+      <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--muted)' }}>The song</p>
 
       {/* ── Selected track card ─────────────────────────────── */}
       {selected ? (
         <div
           className="flex items-center gap-3 p-3 rounded-xl"
-          style={{ background: '#2E2825', border: '1px solid rgba(255,249,239,0.1)' }}
+          style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}
         >
           {selected.album_art_url ? (
             <img
@@ -56,20 +62,20 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
           ) : (
             <div
               className="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center text-xl"
-              style={{ background: '#1A1614', color: '#8A7E78' }}
+              style={{ background: 'var(--bg)', color: 'var(--muted)' }}
             >
               ♪
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-cream font-semibold text-sm leading-tight truncate">{selected.song_name}</p>
-            <p className="text-muted text-xs truncate mt-0.5">{selected.artist}</p>
+            <p className="font-semibold text-sm leading-tight truncate" style={{ color: 'var(--text)' }}>{selected.song_name}</p>
+            <p className="text-xs truncate mt-0.5" style={{ color: 'var(--muted)' }}>{selected.artist}</p>
           </div>
           <button
             type="button"
             onClick={clearSelection}
-            className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-muted text-base"
-            style={{ background: 'rgba(255,249,239,0.06)' }}
+            className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-base"
+            style={{ background: 'var(--surface)', color: 'var(--muted)' }}
             aria-label="Clear selection"
           >
             ×
@@ -85,18 +91,19 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
               onChange={e => setQuery(e.target.value)}
               placeholder="Search Spotify for the song…"
               autoComplete="off"
-              className="w-full rounded-xl px-4 py-3 text-cream text-sm placeholder:text-muted outline-none pr-10"
-              style={{ background: '#2E2825', border: '1px solid rgba(255,249,239,0.08)' }}
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none pr-10"
+              style={inputStyle}
             />
             {/* Spinner / clear */}
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
               {searching ? (
-                <div className="w-4 h-4 rounded-full border-2 border-t-cream border-muted animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderTopColor: 'var(--text)', borderColor: 'var(--border)' }} />
               ) : query ? (
                 <button
                   type="button"
                   onClick={clear}
-                  className="text-muted text-lg leading-none"
+                  className="text-lg leading-none"
+                  style={{ color: 'var(--muted)' }}
                   aria-label="Clear search"
                 >
                   ×
@@ -109,7 +116,7 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
           {showResults && (
             <div
               className="rounded-xl overflow-hidden"
-              style={{ background: '#2E2825', border: '1px solid rgba(255,249,239,0.08)' }}
+              style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}
             >
               {results.map((track, i) => (
                 <button
@@ -117,7 +124,7 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
                   type="button"
                   onClick={() => pickTrack(track)}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-surface"
-                  style={{ borderTop: i > 0 ? '1px solid rgba(255,249,239,0.05)' : 'none' }}
+                  style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}
                 >
                   {track.album_art_url ? (
                     <img
@@ -128,14 +135,14 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
                   ) : (
                     <div
                       className="w-10 h-10 rounded-md flex-shrink-0 flex items-center justify-center text-lg"
-                      style={{ background: '#1A1614', color: '#8A7E78' }}
+                      style={{ background: 'var(--bg)', color: 'var(--muted)' }}
                     >
                       ♪
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-cream text-sm font-medium leading-tight truncate">{track.song_name}</p>
-                    <p className="text-muted text-xs truncate mt-0.5">{track.artist}</p>
+                    <p className="text-sm font-medium leading-tight truncate" style={{ color: 'var(--text)' }}>{track.song_name}</p>
+                    <p className="text-xs truncate mt-0.5" style={{ color: 'var(--muted)' }}>{track.artist}</p>
                   </div>
                 </button>
               ))}
@@ -143,13 +150,13 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
           )}
 
           {showEmpty && (
-            <p className="text-xs px-1" style={{ color: '#5C524E' }}>
+            <p className="text-xs px-1" style={{ color: 'var(--muted)' }}>
               No results — you can still submit without a Spotify match.
             </p>
           )}
 
           {error && (
-            <p className="text-xs px-1 leading-relaxed" style={{ color: '#5C524E' }}>
+            <p className="text-xs px-1 leading-relaxed" style={{ color: 'var(--muted)' }}>
               Search unavailable — you can still type the song name and submit.
             </p>
           )}
@@ -163,12 +170,12 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
           onChange={e => { if (e.target.value.length <= MEMORY_MAX) setMemory(e.target.value) }}
           placeholder="It came back to me out of nowhere one day and I realised…"
           rows={4}
-          className="w-full rounded-xl px-4 py-3 text-cream text-sm placeholder:text-muted outline-none resize-none"
-          style={{ background: '#2E2825', border: '1px solid rgba(255,249,239,0.08)' }}
+          className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"
+          style={inputStyle}
         />
         <span
           className="absolute bottom-3 right-4 text-xs pointer-events-none"
-          style={{ color: memLeft < 20 ? '#E05A35' : '#8A7E78' }}
+          style={{ color: memLeft < 20 ? 'var(--red-l)' : 'var(--muted)' }}
         >
           {memLeft} left to say it
         </span>
@@ -180,15 +187,18 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
         value={handle}
         onChange={e => setHandle(e.target.value)}
         placeholder="Or stay anonymous. The song speaks for you."
-        className="w-full rounded-xl px-4 py-3 text-cream text-sm placeholder:text-muted outline-none"
-        style={{ background: '#2E2825', border: '1px solid rgba(255,249,239,0.08)' }}
+        className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+        style={inputStyle}
       />
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-4 rounded-2xl text-cream font-bold text-base mt-1"
-        style={{ background: loading ? '#5C524E' : '#B52900' }}
+        className="w-full py-4 rounded-2xl font-bold text-base mt-1"
+        style={{
+          background: loading ? 'var(--surface2)' : 'var(--red)',
+          color: loading ? 'var(--muted)' : 'var(--text)',
+        }}
       >
         {loading ? 'Bringing it back…' : 'Bring it back'}
       </button>
@@ -196,8 +206,8 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
       <button
         type="button"
         onClick={onCancel}
-        className="w-full py-3 rounded-2xl text-muted text-sm font-medium"
-        style={{ border: '1px solid rgba(255,249,239,0.08)' }}
+        className="w-full py-3 rounded-2xl text-sm font-medium"
+        style={{ border: '1px solid var(--border)', color: 'var(--muted)' }}
       >
         Cancel
       </button>

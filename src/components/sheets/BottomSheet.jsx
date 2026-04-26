@@ -26,9 +26,9 @@ export default function BottomSheet({ open, onClose, children, maxHeight = '90vh
       <div
         className="relative w-full rounded-t-3xl flex flex-col"
         style={{
-          background: '#221E1C',
+          background: 'var(--surface)',
           maxHeight,
-          border: '1px solid rgba(255,249,239,0.08)',
+          border: '1px solid var(--border)',
           borderBottom: 'none',
           animation: 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)',
           ...sheetStyle,

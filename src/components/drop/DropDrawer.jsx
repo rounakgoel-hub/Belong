@@ -75,9 +75,9 @@ export default function DropDrawer({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'rgba(26,22,20,0.95)',
+          background: 'color-mix(in srgb, var(--bg) 95%, transparent)',
           backdropFilter: 'blur(12px)',
-          borderTop: '1px solid rgba(255,249,239,0.08)',
+          borderTop: '1px solid var(--border)',
         }}
       >
         <span className="text-sm text-cream font-medium">Tap the map to place your pin.</span>
@@ -88,8 +88,8 @@ export default function DropDrawer({
 
   const panelStyle = {
     ...baseStyle,
-    background: '#221E1C',
-    border: '1px solid rgba(255,249,239,0.08)',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
     borderBottom: 'none',
     borderRadius: '24px 24px 0 0',
     maxHeight: '92vh',
@@ -129,6 +129,7 @@ export default function DropDrawer({
             isFirst={totalPins <= 1}
             onWaitlist={onOpenWaitlist}
             onBack={onClose}
+            toast={toast}
           />
         </div>
       </div>

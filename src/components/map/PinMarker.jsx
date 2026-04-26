@@ -5,9 +5,10 @@ import { pinColor, initials } from '../../lib/constants'
 
 function createPinIcon(pin, isOwn = false) {
   const color = pinColor(pin.handle || '♪')
-  const border = isOwn ? `border: 2.5px solid #C9A84C;` : `border: 2px solid ${color};`
+  const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#C9A84C'
+  const border = isOwn ? `border: 2.5px solid ${gold};` : `border: 2px solid ${color};`
   const glow = isOwn
-    ? `box-shadow: 0 0 0 3px rgba(201,168,76,0.25), 0 2px 8px rgba(0,0,0,0.5);`
+    ? `box-shadow: 0 0 0 3px ${gold}40, 0 2px 8px rgba(0,0,0,0.5);`
     : `box-shadow: 0 2px 8px rgba(0,0,0,0.4);`
 
   const avatar = pin.album_art_url

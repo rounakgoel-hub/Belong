@@ -53,7 +53,7 @@ export default function WaitlistModal({ open, onClose, toast }) {
               onChange={e => setContact(e.target.value)}
               placeholder="Phone or email"
               className="w-full bg-surface2 rounded-xl px-4 py-3 text-cream text-sm placeholder:text-muted outline-none mb-4"
-              style={{ border: '1px solid rgba(255,249,239,0.08)' }}
+              style={{ border: '1px solid var(--border)' }}
             />
 
             <button
@@ -61,8 +61,8 @@ export default function WaitlistModal({ open, onClose, toast }) {
               disabled={loading || !contact.trim()}
               className="w-full py-4 rounded-2xl font-bold text-cream text-base transition-all"
               style={{
-                background: contact.trim() ? '#C9A84C' : '#2E2825',
-                color: contact.trim() ? '#1A1614' : '#8A7E78',
+                background: contact.trim() ? 'var(--gold)' : 'var(--surface2)',
+                color: contact.trim() ? 'var(--bg)' : 'var(--muted)',
               }}
             >
               {loading ? 'Holding…' : 'Hold my spot →'}

@@ -15,7 +15,7 @@ export default function Toast({ message, onDone }) {
         transform: `translateX(-50%) translateY(${visible ? 0 : 12}px)`,
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.3s, transform 0.3s',
-        background: '#221E1C',
+        background: 'var(--surface)',
         border: '1px solid rgba(255,249,239,0.12)',
         maxWidth: '88vw',
         textAlign: 'center',
