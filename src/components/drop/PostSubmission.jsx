@@ -1,12 +1,47 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useAppContext } from '../../context/AppContext'
 
-export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast }) {
+const VENUE_LAT = 13.0671646
+const VENUE_LNG = 80.259706
+
+function haversineM(lat1, lng1, lat2, lng2) {
+  const R = 6371000
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+  return R * 2 * Math.asin(Math.sqrt(a))
+}
+
+export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast, position, locationGranted, onNearestPinClick }) {
+  const { pins } = useAppContext()
   const hasArt = !!pin?.album_art_url
 
   // ready = true immediately for no-art pins; set true on image load for art pins.
   // Everything — art, song name bars, memory — waits on the same gate so the
   // whole card reveals in one smooth transition.
   const [ready, setReady] = useState(!hasArt)
+
+  const insights = useMemo(() => {
+    if (!locationGranted || !position) return null
+
+    const venueDistKm = (haversineM(position.lat, position.lng, VENUE_LAT, VENUE_LNG) / 1000).toFixed(1)
+
+    let nearestPin = null
+    let nearestDistM = Infinity
+    for (const p of pins) {
+      if (p.id === pin?.id) continue
+      const d = haversineM(position.lat, position.lng, p.lat, p.lng)
+      if (d < nearestDistM) { nearestDistM = d; nearestPin = p }
+    }
+
+    return {
+      venueDistKm,
+      nearestPin,
+      nearestDistM: nearestPin ? Math.round(nearestDistM) : null,
+    }
+  }, [locationGranted, position, pins, pin?.id])
 
   async function handleShare() {
     const title = 'Belong.'
@@ -166,6 +201,30 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
           </div>
         </div>
       </div>
+
+      {/* ── Spatial insights — only when GPS was granted ───── */}
+      {insights && (
+        <div className="flex flex-col gap-2.5 px-1">
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
+            Your song is{' '}
+            <span style={{ color: 'var(--text)', fontWeight: 600 }}>{insights.venueDistKm}km</span>
+            {' '}from the stage. On May 23rd, it travels there.
+          </p>
+          {insights.nearestPin && (
+            <button
+              onClick={() => onNearestPinClick?.(insights.nearestPin)}
+              className="text-left text-xs leading-relaxed"
+              style={{ color: 'var(--muted)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              Someone{' '}
+              <span style={{ color: 'var(--text)', fontWeight: 600 }}>{insights.nearestDistM}m</span>
+              {' '}away dropped{' '}
+              <span style={{ color: 'var(--text)', fontWeight: 600 }}>{insights.nearestPin.song_name}</span>
+              . You might know them.
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ── Headline ───────────────────────────────────────── */}
       <div className="text-center px-2">

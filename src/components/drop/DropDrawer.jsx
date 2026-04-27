@@ -6,21 +6,53 @@ import { useDragToDismiss } from '../../hooks/useDragToDismiss'
 import DropForm from './DropForm'
 import PostSubmission from './PostSubmission'
 
+function maskLocation(lat, lng) {
+  const r = 0.005 * Math.random()
+  const angle = Math.random() * 2 * Math.PI
+  return {
+    lat: lat + r * Math.cos(angle),
+    lng: lng + r * Math.sin(angle),
+  }
+}
+
 // step: 'placing' | 'form' | 'done'
 export default function DropDrawer({
-  step, position, onClose, onSubmitted,
-  onOpenWaitlist, totalPins, toast
+  step, position, locationGranted, onClose, onSubmitted,
+  onOpenWaitlist, onNearestPinClick, totalPins, toast, onLocationReady
 }) {
   // pendingPin is set immediately from form data — no waiting for Supabase.
   // Once the insert returns, it's upgraded to the real row (adds id, created_at, etc).
   const [pendingPin, setPendingPin] = useState(null)
+  const [locationPanned, setLocationPanned] = useState(false)
   const scrollRef = useRef(null)
   const { sheetHandlers, sheetStyle } = useDragToDismiss(handleClose, scrollRef)
+  // Prevents a late-resolving GPS callback from firing after the user already moved on.
+  const locationActiveRef = useRef(false)
 
   // Reset local state when the drawer is fully closed.
   useEffect(() => {
-    if (!step) setPendingPin(null)
+    if (!step) { setPendingPin(null); setLocationPanned(false) }
   }, [step])
+
+  // Silently request geolocation as soon as placing step opens.
+  useEffect(() => {
+    if (step !== 'placing') {
+      locationActiveRef.current = false
+      return
+    }
+    if (locationActiveRef.current) return
+    locationActiveRef.current = true
+
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        if (!locationActiveRef.current) return
+        setLocationPanned(true)
+        onLocationReady?.({ lat: coords.latitude, lng: coords.longitude })
+      },
+      () => {} // denied or unavailable — user falls back to manual tap, no message shown
+    )
+  }, [step, onLocationReady])
 
   function handleClose() {
     setPendingPin(null)
@@ -58,13 +90,16 @@ export default function DropDrawer({
         if (existing?.length) toast('Someone else feels this too. Want to add your memory of it?')
       })
 
-    // ④ Insert runs concurrently while PostSubmission is already visible.
+    // ④ Mask raw coords before insert — never store exact location.
+    const { lat, lng } = maskLocation(position.lat, position.lng)
+
+    // ⑤ Insert runs concurrently while PostSubmission is already visible.
     const { data, error } = await supabase
       .from('pins')
       .insert({
         edition_id:       EDITION_ID,
-        lat:              position.lat,
-        lng:              position.lng,
+        lat,
+        lng,
         song_name:        songName.trim(),
         artist:           artist.trim(),
         memory:           memory.trim(),
@@ -82,7 +117,7 @@ export default function DropDrawer({
       return
     }
 
-    // ⑤ Upgrade to real row (now has id, created_at) and add marker to the map.
+    // ⑥ Upgrade to real row (now has id, created_at) and add marker to the map.
     setPendingPin(data)
     onSubmitted(data)
   }
@@ -100,17 +135,30 @@ export default function DropDrawer({
       <div
         style={{
           ...baseStyle,
-          padding: '14px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          padding: '14px 20px 16px',
           background: 'color-mix(in srgb, var(--bg) 95%, transparent)',
           backdropFilter: 'blur(12px)',
           borderTop: '1px solid var(--border)',
         }}
       >
-        <span className="text-sm text-cream font-medium">Tap the map to place your pin.</span>
-        <button onClick={handleClose} className="text-muted text-sm underline underline-offset-2">cancel</button>
+        {locationPanned ? (
+          <>
+            <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text)' }}>
+              We've panned the map to your approximate location. We'd love for you to place your pin to around where you are in Chennai right now.
+            </p>
+            <p className="text-xs mb-3" style={{ color: 'var(--muted)' }}>
+              Your location data is never stored — we shift it slightly to keep you anonymous.
+            </p>
+          </>
+        ) : (
+          <p className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>
+            Tap the map to place your pin.
+          </p>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="text-xs" style={{ color: 'var(--muted)' }}>Tap anywhere on the map to place it.</span>
+          <button onClick={handleClose} className="text-xs underline underline-offset-2" style={{ color: 'var(--muted)' }}>cancel</button>
+        </div>
       </div>
     )
   }
@@ -146,6 +194,9 @@ export default function DropDrawer({
             onWaitlist={onOpenWaitlist}
             onBack={handleClose}
             toast={toast}
+            position={position}
+            locationGranted={locationGranted}
+            onNearestPinClick={onNearestPinClick}
           />
         </div>
       </div>

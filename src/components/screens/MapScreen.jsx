@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import MapView from '../map/MapView'
 import DropDrawer from '../drop/DropDrawer'
 import StorySheet from '../sheets/StorySheet'
+import VenueSheet from '../map/VenueSheet'
 import WaitlistModal from '../sheets/WaitlistModal'
 import CountdownStrip from '../ui/CountdownStrip'
 import { usePins } from '../../hooks/usePins'
@@ -19,7 +20,10 @@ export default function MapScreen() {
 
   const [dropStep, setDropStep] = useState(null) // null | 'placing' | 'form' | 'done'
   const [placingPos, setPlacingPos] = useState(null)
+  const [mapPanTo, setMapPanTo] = useState(null)
+  const [locationGranted, setLocationGranted] = useState(false)
   const [selectedPin, setSelectedPin] = useState(null)
+  const [venueSheetOpen, setVenueSheetOpen] = useState(false)
   const [waitlistOpen, setWaitlistOpen] = useState(false)
   const [footerCollapsed, setFooterCollapsed] = useState(false)
   const [newPinId, setNewPinId] = useState(null)
@@ -51,6 +55,26 @@ export default function MapScreen() {
     if (!dropStep) setSelectedPin(pin)
   }, [dropStep])
 
+  const handleVenuePinClick = useCallback(() => {
+    if (!dropStep) setVenueSheetOpen(true)
+  }, [dropStep])
+
+  function handleLocationReady(latlng) {
+    // Pan the map to approximate location — user still taps manually to place the pin.
+    setMapPanTo(latlng)
+    setLocationGranted(true)
+  }
+
+  // Opens a pin's StorySheet from inside PostSubmission — closes drop flow first.
+  const handleNearestPinClick = useCallback((pin) => {
+    setDropStep(null)
+    setPlacingPos(null)
+    setMapPanTo(null)
+    setLocationGranted(false)
+    setFooterCollapsed(false)
+    setSelectedPin(pin)
+  }, [])
+
   function handleSubmitted(pin) {
     addPin(pin)          // instantly visible on map — no waiting for realtime echo
     setNewPinId(pin.id)
@@ -60,6 +84,8 @@ export default function MapScreen() {
   function closeDrop() {
     setDropStep(null)
     setPlacingPos(null)
+    setMapPanTo(null)
+    setLocationGranted(false)
     setFooterCollapsed(false)
   }
 
@@ -118,6 +144,8 @@ export default function MapScreen() {
           placingMode={dropStep === 'placing'}
           placingPosition={placingPos}
           onMapClick={handleMapClick}
+          onVenuePinClick={handleVenuePinClick}
+          panTo={mapPanTo}
         />
 
         {/* FAB */}
@@ -212,11 +240,14 @@ export default function MapScreen() {
       <DropDrawer
         step={dropStep}
         position={placingPos}
+        locationGranted={locationGranted}
         onClose={closeDrop}
         onSubmitted={handleSubmitted}
         onOpenWaitlist={() => setWaitlistOpen(true)}
+        onNearestPinClick={handleNearestPinClick}
         totalPins={pins.length}
         toast={toast}
+        onLocationReady={handleLocationReady}
       />
 
       {/* Story sheet */}
@@ -225,6 +256,13 @@ export default function MapScreen() {
         open={!!selectedPin}
         onClose={() => setSelectedPin(null)}
         toast={toast}
+      />
+
+      {/* Venue sheet */}
+      <VenueSheet
+        open={venueSheetOpen}
+        onClose={() => setVenueSheetOpen(false)}
+        onOpenWaitlist={() => setWaitlistOpen(true)}
       />
 
       {/* Waitlist */}
