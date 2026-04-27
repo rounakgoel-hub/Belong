@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { pinColor, initials } from '../../lib/constants'
@@ -50,14 +50,19 @@ function createPinIcon(pin, isOwn = false) {
   })
 }
 
-export default function PinMarker({ pin, isOwn, onClick }) {
+export default memo(function PinMarker({ pin, isOwn, onClick }) {
   const map = useMap()
   const markerRef = useRef(null)
+  const onClickRef = useRef(onClick)
+
+  // Keep the ref current on every render so the Leaflet handler always calls
+  // the latest onClick without needing to recreate the marker.
+  useEffect(() => { onClickRef.current = onClick }, [onClick])
 
   useEffect(() => {
     const icon = createPinIcon(pin, isOwn)
     const marker = L.marker([pin.lat, pin.lng], { icon })
-    marker.on('click', () => onClick?.(pin))
+    marker.on('click', () => onClickRef.current?.(pin))
     marker.addTo(map)
     markerRef.current = marker
 
@@ -65,4 +70,4 @@ export default function PinMarker({ pin, isOwn, onClick }) {
   }, [pin.id, pin.album_art_url, pin.resonance_count, isOwn])
 
   return null
-}
+})

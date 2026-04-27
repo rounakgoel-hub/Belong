@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet'
 import { CHENNAI_CENTER, DEFAULT_ZOOM, TILE_URL_DARK, TILE_URL_LIGHT, TILE_ATTRIBUTION } from '../../lib/constants'
 import { useAppContext } from '../../context/AppContext'
@@ -14,7 +15,7 @@ function ClickHandler({ onMapClick, placingMode }) {
   return null
 }
 
-export default function MapView({ pins, onPinClick, placingMode, placingPosition, onMapClick }) {
+export default memo(function MapView({ pins, onPinClick, placingMode, placingPosition, onMapClick }) {
   const myAnonId = getAnonId()
   const { theme } = useAppContext()
   const tileUrl = theme === 'light' ? TILE_URL_LIGHT : TILE_URL_DARK
@@ -43,4 +44,4 @@ export default function MapView({ pins, onPinClick, placingMode, placingPosition
       {(placingMode || placingPosition) && <PlacingPin position={placingPosition} />}
     </MapContainer>
   )
-}
+})

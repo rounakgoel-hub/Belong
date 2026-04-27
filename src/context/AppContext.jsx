@@ -124,6 +124,16 @@ export function AppProvider({ children }) {
     }
   }, [])
 
+  // Optimistic insert — called immediately after a successful submission so the
+  // new pin is tappable without waiting for the Supabase realtime echo.
+  // The realtime INSERT will arrive later; flushPins already deduplicates by id.
+  function addPin(pin) {
+    setPins(prev => {
+      if (prev.find(p => p.id === pin.id)) return prev // realtime beat us — no-op
+      return [pin, ...prev]
+    })
+  }
+
   async function registerInterest(toast, message) {
     if (interested) {
       // Toggle off — optimistic update, then delete
@@ -149,7 +159,7 @@ export function AppProvider({ children }) {
   }
 
   return (
-    <AppContext.Provider value={{ theme, toggleTheme, pins, pinsLoading, interestCount, interested, registerInterest }}>
+    <AppContext.Provider value={{ theme, toggleTheme, pins, pinsLoading, addPin, interestCount, interested, registerInterest }}>
       {children}
     </AppContext.Provider>
   )

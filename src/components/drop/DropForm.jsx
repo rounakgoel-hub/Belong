@@ -9,7 +9,7 @@ const inputStyle = {
   color: 'var(--text)',
 }
 
-export default function DropForm({ onSubmit, onCancel, loading }) {
+export default function DropForm({ onSubmit, onCancel }) {
   const { query, setQuery, results, searching, error, clear } = useSpotifySearch()
   const [selected, setSelected] = useState(null)
   const [memory, setMemory] = useState('')
@@ -193,14 +193,10 @@ export default function DropForm({ onSubmit, onCancel, loading }) {
 
       <button
         type="submit"
-        disabled={loading}
         className="w-full py-4 rounded-2xl font-bold text-base mt-1"
-        style={{
-          background: loading ? 'var(--surface2)' : 'var(--red)',
-          color: loading ? 'var(--muted)' : 'var(--text)',
-        }}
+        style={{ background: 'var(--red)', color: 'var(--text)' }}
       >
-        {loading ? 'Bringing it back…' : 'Bring it back'}
+        Bring it back
       </button>
 
       <button

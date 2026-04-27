@@ -1,37 +1,8 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import { EDITION_ID } from '../lib/constants'
+// Thin delegate — all pin state and the single realtime channel live in AppContext.
+// Components call usePins() as before; no duplicate subscriptions or split state.
+import { useAppContext } from '../context/AppContext'
 
 export function usePins() {
-  const [pins, setPins] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    supabase
-      .from('pins')
-      .select('*')
-      .eq('edition_id', EDITION_ID)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setPins(data)
-        setLoading(false)
-      })
-
-    const channel = supabase
-      .channel('pins-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pins' }, ({ new: pin }) => {
-        if (pin.edition_id === EDITION_ID) setPins(prev => [pin, ...prev])
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pins' }, ({ new: pin }) => {
-        if (pin.edition_id === EDITION_ID) setPins(prev => prev.map(p => p.id === pin.id ? pin : p))
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'pins' }, ({ old: pin }) => {
-        setPins(prev => prev.filter(p => p.id !== pin.id))
-      })
-      .subscribe()
-
-    return () => supabase.removeChannel(channel)
-  }, [])
-
-  return { pins, loading }
+  const { pins, pinsLoading } = useAppContext()
+  return { pins, loading: pinsLoading }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MapView from '../map/MapView'
 import DropDrawer from '../drop/DropDrawer'
@@ -13,7 +13,7 @@ import { useToast } from '../ui/ToastManager'
 export default function MapScreen() {
   const navigate = useNavigate()
   const { pins, loading } = usePins()
-  const { theme, toggleTheme } = useAppContext()
+  const { theme, toggleTheme, addPin } = useAppContext()
   const toast = useToast()
   const myAnonId = getAnonId()
 
@@ -38,14 +38,21 @@ export default function MapScreen() {
     setFooterCollapsed(true)
   }
 
-  function handleMapClick(latlng) {
+  // Stable callbacks — MapView is memoized and must not re-render just because
+  // selectedPin or other unrelated state changed in MapScreen.
+  const handleMapClick = useCallback((latlng) => {
     if (dropStep === 'placing') {
       setPlacingPos(latlng)
       setDropStep('form')
     }
-  }
+  }, [dropStep])
+
+  const handlePinClick = useCallback((pin) => {
+    if (!dropStep) setSelectedPin(pin)
+  }, [dropStep])
 
   function handleSubmitted(pin) {
+    addPin(pin)          // instantly visible on map — no waiting for realtime echo
     setNewPinId(pin.id)
     setDropStep('done')
   }
@@ -107,7 +114,7 @@ export default function MapScreen() {
       <div className="flex-1 relative">
         <MapView
           pins={pins}
-          onPinClick={pin => { if (!dropStep) setSelectedPin(pin) }}
+          onPinClick={handlePinClick}
           placingMode={dropStep === 'placing'}
           placingPosition={placingPos}
           onMapClick={handleMapClick}

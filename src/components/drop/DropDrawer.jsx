@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { getAnonId } from '../../lib/anonId'
 import { EDITION_ID } from '../../lib/constants'
@@ -11,51 +11,80 @@ export default function DropDrawer({
   step, position, onClose, onSubmitted,
   onOpenWaitlist, totalPins, toast
 }) {
-  const [loading, setLoading] = useState(false)
-  const [newPin, setNewPin] = useState(null)
+  // pendingPin is set immediately from form data — no waiting for Supabase.
+  // Once the insert returns, it's upgraded to the real row (adds id, created_at, etc).
+  const [pendingPin, setPendingPin] = useState(null)
   const scrollRef = useRef(null)
-  const { sheetHandlers, sheetStyle } = useDragToDismiss(onClose, scrollRef)
+  const { sheetHandlers, sheetStyle } = useDragToDismiss(handleClose, scrollRef)
+
+  // Reset local state when the drawer is fully closed.
+  useEffect(() => {
+    if (!step) setPendingPin(null)
+  }, [step])
+
+  function handleClose() {
+    setPendingPin(null)
+    onClose()
+  }
 
   async function handleSubmit({ songName, artist, memory, handle, spotify_track_id, album_art_url, preview_url }) {
     if (!songName.trim()) { toast('Name the dead song'); return }
     if (!memory.trim()) { toast('Tell us why it deserved better'); return }
     if (!position) { toast('Tap the map to drop your pin first'); return }
 
-    const { data: existing } = await supabase
+    // ① Build display pin from local form data — album art and preview_url are
+    //    already in memory from the Spotify search; no re-fetch needed.
+    const localPin = {
+      song_name:    songName.trim(),
+      artist:       artist.trim(),
+      memory:       memory.trim(),
+      handle:       handle.trim() || null,
+      album_art_url: album_art_url ?? null,
+      preview_url:  preview_url ?? null,
+      resonance_count: 0,
+    }
+
+    // ② Show post-submission screen immediately — don't wait for Supabase.
+    setPendingPin(localPin)
+
+    // ③ Duplicate-song check — fire without awaiting so it never blocks the UI.
+    supabase
       .from('pins')
       .select('id')
       .ilike('song_name', songName.trim())
       .eq('edition_id', EDITION_ID)
       .limit(1)
+      .then(({ data: existing }) => {
+        if (existing?.length) toast('Someone else feels this too. Want to add your memory of it?')
+      })
 
-    if (existing?.length) {
-      toast('Someone else feels this too. Want to add your memory of it?')
-    }
-
-    setLoading(true)
+    // ④ Insert runs concurrently while PostSubmission is already visible.
     const { data, error } = await supabase
       .from('pins')
       .insert({
-        edition_id: EDITION_ID,
-        lat: position.lat,
-        lng: position.lng,
-        song_name: songName.trim(),
-        artist: artist.trim(),
-        memory: memory.trim(),
-        handle: handle.trim() || null,
-        anon_id: getAnonId(),
+        edition_id:       EDITION_ID,
+        lat:              position.lat,
+        lng:              position.lng,
+        song_name:        songName.trim(),
+        artist:           artist.trim(),
+        memory:           memory.trim(),
+        handle:           handle.trim() || null,
+        anon_id:          getAnonId(),
         spotify_track_id: spotify_track_id ?? null,
-        album_art_url: album_art_url ?? null,
-        preview_url: preview_url ?? null,
+        album_art_url:    album_art_url ?? null,
+        preview_url:      preview_url ?? null,
       })
       .select()
       .single()
 
-    setLoading(false)
-    if (!error && data) {
-      setNewPin(data)
-      onSubmitted(data)
+    if (error) {
+      toast("Couldn't save your song — check your connection.")
+      return
     }
+
+    // ⑤ Upgrade to real row (now has id, created_at) and add marker to the map.
+    setPendingPin(data)
+    onSubmitted(data)
   }
 
   const baseStyle = {
@@ -81,7 +110,7 @@ export default function DropDrawer({
         }}
       >
         <span className="text-sm text-cream font-medium">Tap the map to place your pin.</span>
-        <button onClick={onClose} className="text-muted text-sm underline underline-offset-2">cancel</button>
+        <button onClick={handleClose} className="text-muted text-sm underline underline-offset-2">cancel</button>
       </div>
     )
   }
@@ -99,38 +128,39 @@ export default function DropDrawer({
     ...sheetStyle,
   }
 
-  if (step === 'form') {
+  const handle = (
+    <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
+      <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,249,239,0.2)' }} />
+    </div>
+  )
+
+  // Post-submission — shown as soon as pendingPin is set, before insert returns.
+  if (pendingPin) {
     return (
       <div style={panelStyle} {...sheetHandlers}>
-        {/* Handle — visual only */}
-        <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,249,239,0.2)' }} />
-        </div>
-        <div className="px-5 pt-1 pb-1 flex-shrink-0">
-          <h2 className="text-cream font-extrabold text-lg">Drop a song the world forgot.</h2>
-        </div>
+        {handle}
         <div ref={scrollRef} className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DropForm onSubmit={handleSubmit} onCancel={onClose} loading={loading} />
+          <PostSubmission
+            pin={pendingPin}
+            isFirst={totalPins <= 1}
+            onWaitlist={onOpenWaitlist}
+            onBack={handleClose}
+            toast={toast}
+          />
         </div>
       </div>
     )
   }
 
-  if (step === 'done' && newPin) {
+  if (step === 'form') {
     return (
       <div style={panelStyle} {...sheetHandlers}>
-        {/* Handle — visual only */}
-        <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,249,239,0.2)' }} />
+        {handle}
+        <div className="px-5 pt-1 pb-1 flex-shrink-0">
+          <h2 className="text-cream font-extrabold text-lg">Drop a song the world forgot.</h2>
         </div>
         <div ref={scrollRef} className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <PostSubmission
-            pin={newPin}
-            isFirst={totalPins <= 1}
-            onWaitlist={onOpenWaitlist}
-            onBack={onClose}
-            toast={toast}
-          />
+          <DropForm onSubmit={handleSubmit} onCancel={handleClose} />
         </div>
       </div>
     )

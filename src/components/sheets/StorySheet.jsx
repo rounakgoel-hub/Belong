@@ -8,7 +8,6 @@ import { getAnonId } from '../../lib/anonId'
 const COMMENT_MAX = 200
 const MEMORY_MAX = 150
 
-// currentColor lets these icons inherit from their parent button's color
 function PlayIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -44,9 +43,62 @@ export default function StorySheet({ pin, open, onClose, toast }) {
   const [editingCommentBody, setEditingCommentBody] = useState('')
   const [savingComment, setSavingComment] = useState(false)
 
+  // ── Album art skeleton ──────────────────────────────────────
+  // Reset whenever the pin changes so the skeleton shows for each new song.
+  const [artLoaded, setArtLoaded] = useState(false)
+  useEffect(() => { setArtLoaded(false) }, [pin?.id])
+
+  // ── Audio ────────────────────────────────────────────────────
   const audioRef = useRef(null)
   const [playing, setPlaying] = useState(false)
 
+  // Clean up when the sheet closes or switches pin.
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ''
+        audioRef.current = null
+        setPlaying(false)
+      }
+    }
+  }, [pin?.id, open])
+
+  // Autoplay — fires after the slide-up animation completes so the sheet is
+  // already visible before any audio work begins.
+  useEffect(() => {
+    if (!open || !pin?.preview_url) return
+    const t = setTimeout(() => {
+      if (audioRef.current) return  // already playing from a previous trigger
+      const audio = new Audio(pin.preview_url)
+      audio.volume = 0.5
+      audio.addEventListener('ended', () => setPlaying(false))
+      audioRef.current = audio
+      audio.play().then(() => setPlaying(true)).catch(() => {})
+    }, 300)
+    return () => clearTimeout(t)
+  }, [pin?.id, open])
+
+  function togglePlay() {
+    if (!pin?.preview_url) return
+    if (audioRef.current) {
+      if (playing) {
+        audioRef.current.pause()
+        setPlaying(false)
+      } else {
+        audioRef.current.play().then(() => setPlaying(true)).catch(() => {})
+      }
+    } else {
+      // First tap — create the Audio object lazily
+      const audio = new Audio(pin.preview_url)
+      audio.volume = 0.5
+      audio.addEventListener('ended', () => setPlaying(false))
+      audioRef.current = audio
+      audio.play().then(() => setPlaying(true)).catch(() => {})
+    }
+  }
+
+  // ── Comments + edit state — fetched after sheet is open ────
   const { count, resonated, toggle } = useResonance(pin, toast)
   const isOwn = pin?.anon_id === getAnonId()
 
@@ -65,36 +117,6 @@ export default function StorySheet({ pin, open, onClose, toast }) {
       .order('created_at', { ascending: true })
       .then(({ data }) => { if (data) setComments(data) })
   }, [pin?.id, open])
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.src = ''
-      audioRef.current = null
-      setPlaying(false)
-    }
-    if (!pin?.preview_url || !open) return
-
-    const audio = new Audio(pin.preview_url)
-    audio.volume = 0.5
-    audio.addEventListener('ended', () => setPlaying(false))
-    audioRef.current = audio
-    audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
-
-    return () => {
-      audio.pause()
-      audio.src = ''
-      audioRef.current = null
-      setPlaying(false)
-    }
-  }, [pin?.id, open])
-
-  function togglePlay() {
-    const audio = audioRef.current
-    if (!audio) return
-    if (playing) { audio.pause(); setPlaying(false) }
-    else audio.play().then(() => setPlaying(true)).catch(() => {})
-  }
 
   function startEdit() {
     setEditSong(pin.song_name || '')
@@ -237,44 +259,68 @@ export default function StorySheet({ pin, open, onClose, toast }) {
   }
 
   // ── View mode ────────────────────────────────────────────────
+  // Renders immediately with whatever pin data is in memory.
+  // Album art loads asynchronously behind the skeleton.
+  // Audio is never created until the user taps play.
   const hasArt = !!pin.album_art_url
   const hasAudio = !!pin.preview_url
 
   return (
     <BottomSheet open={open} onClose={onClose} maxHeight="92vh">
 
-      {/* Album art banner */}
-      {hasArt && (
-        <div className="relative w-full flex-shrink-0 overflow-hidden" style={{ height: 220 }}>
-          <img src={pin.album_art_url} alt={pin.song_name} className="w-full h-full object-cover" />
-          {/* Gradient fades to sheet surface — rgba of --surface dark value kept intentionally */}
-          <div className="absolute inset-0"
-            style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.82) 100%)' }} />
+      {/* ── Album art banner with skeleton ───────────────────── */}
+      <div className="relative w-full flex-shrink-0 overflow-hidden" style={{ height: hasArt ? 220 : 0 }}>
+        {hasArt && (
+          <>
+            {/* Skeleton — pulsing surface placeholder, fades out once art loads */}
+            {!artLoaded && (
+              <div
+                className="absolute inset-0 animate-pulse"
+                style={{ background: 'var(--surface2)' }}
+              />
+            )}
 
-          <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 pr-16">
-            <p className="font-extrabold text-lg leading-tight" style={{ color: '#FFF9EF' }}>{pin.song_name}</p>
-            {pin.artist && <p className="text-xs mt-0.5" style={{ color: 'rgba(255,249,239,0.7)' }}>{pin.artist}</p>}
-          </div>
+            <img
+              src={pin.album_art_url}
+              alt={pin.song_name}
+              className="w-full h-full object-cover"
+              style={{ opacity: artLoaded ? 1 : 0, transition: 'opacity 0.25s ease' }}
+              onLoad={() => setArtLoaded(true)}
+            />
 
-          {hasAudio && (
-            <button
-              onClick={togglePlay}
-              className="absolute bottom-3 right-4 w-11 h-11 rounded-full flex items-center justify-center"
-              style={{
-                background: playing ? 'rgba(181,41,0,0.85)' : 'rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#FFF9EF',
-              }}
-              aria-label={playing ? 'Pause preview' : 'Play preview'}
-            >
-              {playing ? <PauseIcon /> : <PlayIcon />}
-            </button>
-          )}
-        </div>
-      )}
+            {/* Gradient — over art, always rendered so text is readable during load */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.82) 100%)' }}
+            />
 
-      {/* Sheet body */}
+            {/* Song name + artist — render immediately, no waiting for image */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 pr-16">
+              <p className="font-extrabold text-lg leading-tight" style={{ color: '#FFF9EF' }}>{pin.song_name}</p>
+              {pin.artist && <p className="text-xs mt-0.5" style={{ color: 'rgba(255,249,239,0.7)' }}>{pin.artist}</p>}
+            </div>
+
+            {/* Play button */}
+            {hasAudio && (
+              <button
+                onClick={togglePlay}
+                className="absolute bottom-3 right-4 w-11 h-11 rounded-full flex items-center justify-center"
+                style={{
+                  background: playing ? 'rgba(181,41,0,0.85)' : 'rgba(0,0,0,0.5)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#FFF9EF',
+                }}
+                aria-label={playing ? 'Pause preview' : 'Play preview'}
+              >
+                {playing ? <PauseIcon /> : <PlayIcon />}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* ── Sheet body — all text data renders immediately ───── */}
       <div className="px-5 pb-8" style={{ paddingTop: hasArt ? 12 : 8 }}>
 
         {/* Contributor row */}
@@ -289,6 +335,22 @@ export default function StorySheet({ pin, open, onClose, toast }) {
                 {pin.artist && <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--muted)' }}>{pin.artist}</p>}
                 <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{pin.handle || 'Anonymous'} · Chennai</p>
               </div>
+
+              {/* Play button for pins without art */}
+              {hasAudio && (
+                <button
+                  onClick={togglePlay}
+                  className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{
+                    background: playing ? 'rgba(181,41,0,0.12)' : 'var(--surface2)',
+                    border: `1px solid ${playing ? 'var(--red)' : 'var(--border)'}`,
+                    color: playing ? 'var(--red)' : 'var(--muted)',
+                  }}
+                  aria-label={playing ? 'Pause preview' : 'Play preview'}
+                >
+                  {playing ? <PauseIcon /> : <PlayIcon />}
+                </button>
+              )}
             </div>
           )}
           {isOwn && (
