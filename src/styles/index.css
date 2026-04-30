@@ -124,6 +124,12 @@ html, body {
   animation: userLocPulse 2s ease-out infinite;
 }
 
+/* Watch label glow */
+@keyframes watchGlow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

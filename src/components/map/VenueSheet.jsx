@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import BottomSheet from '../sheets/BottomSheet'
 
 const PHOTO_URL = 'https://jcpvdmusnlmbdveghfni.supabase.co/storage/v1/object/public/Venue/MadrasTaproomLogo2.png'
+const VENUE_VIDEO_SRC = 'https://player.vimeo.com/video/1187958249?portrait=0&title=0&byline=0&badge=0'
 const DIRECTIONS_URL = 'https://maps.app.goo.gl/hnUJNNjsjcGquZfj7'
 const SHOW_DATE = new Date('2026-05-23T00:00:00+05:30')
 
@@ -64,8 +65,8 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
         </div>
       </div>
 
-      {/* ── Scrollable body ──────────────────────────────────── */}
-      <div style={{ padding: '24px 20px 36px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* ── Countdown + copy ────────────────────────────────── */}
+      <div style={{ padding: '24px 20px 20px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
         {/* ── Live countdown ───────────────────────────────── */}
         <div style={{ textAlign: 'center' }}>
@@ -108,60 +109,84 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
           </div>
         </div>
 
-        {/* ── Bold copy + divider ──────────────────────────── */}
-        <div style={{ textAlign: 'center' }}>
-          <p style={{
-            fontSize: '1rem',
+        {/* ── Bold copy ───────────────────────────────────── */}
+        <p style={{
+          fontSize: '1rem',
+          fontWeight: 700,
+          color: 'var(--text)',
+          fontStyle: 'italic',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          This is where it all plays out.
+        </p>
+
+      </div>
+
+      {/* ── Venue video — full sheet width, 16:9 ────────────── */}
+      <div style={{
+        width: '100%',
+        position: 'relative',
+        paddingBottom: '56.25%',
+        height: 0,
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}>
+        <iframe
+          src={VENUE_VIDEO_SRC}
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%',
+            height: '100%',
+            display: 'block',
+          }}
+          title="The Madras Taproom"
+        />
+      </div>
+
+      {/* ── CTAs ─────────────────────────────────────────────── */}
+      <div style={{ padding: '20px 20px 36px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ height: 1, background: 'var(--border)', marginBottom: 14 }} />
+        <button
+          onClick={() => { onClose(); onOpenWaitlist() }}
+          style={{
+            width: '100%',
+            padding: '14px 0',
+            borderRadius: 16,
+            background: 'var(--red)',
+            color: '#FFF9EF',
             fontWeight: 700,
-            color: 'var(--text)',
-            fontStyle: 'italic',
-            marginBottom: 16,
-          }}>
-            This is where it all plays out.
-          </p>
-          <div style={{ height: 1, background: 'var(--border)' }} />
-        </div>
+            fontSize: 15,
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Reserve your spot
+        </button>
 
-        {/* ── CTAs ────────────────────────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <button
-            onClick={() => { onClose(); onOpenWaitlist() }}
-            style={{
-              width: '100%',
-              padding: '14px 0',
-              borderRadius: 16,
-              background: 'var(--red)',
-              color: '#FFF9EF',
-              fontWeight: 700,
-              fontSize: 15,
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Reserve your spot
-          </button>
-
-          <a
-            href={DIRECTIONS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '13px 0',
-              borderRadius: 16,
-              border: '1px solid var(--border)',
-              color: 'var(--muted)',
-              fontWeight: 600,
-              fontSize: 14,
-              textAlign: 'center',
-              textDecoration: 'none',
-            }}
-          >
-            Get directions
-          </a>
-        </div>
-
+        <a
+          href={DIRECTIONS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '13px 0',
+            borderRadius: 16,
+            border: '1px solid var(--border)',
+            color: 'var(--muted)',
+            fontWeight: 600,
+            fontSize: 14,
+            textAlign: 'center',
+            textDecoration: 'none',
+          }}
+        >
+          Get directions
+        </a>
       </div>
     </BottomSheet>
   )
