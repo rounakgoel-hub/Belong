@@ -4,7 +4,7 @@ import BottomSheet from '../sheets/BottomSheet'
 const PHOTO_URL = 'https://jcpvdmusnlmbdveghfni.supabase.co/storage/v1/object/public/Venue/MadrasTaproomLogo2.png'
 const VENUE_VIDEO_SRC = 'https://player.vimeo.com/video/1187958249?portrait=0&title=0&byline=0&badge=0'
 const DIRECTIONS_URL = 'https://maps.app.goo.gl/hnUJNNjsjcGquZfj7'
-const SHOW_DATE = new Date('2026-05-23T00:00:00+05:30')
+const SHOW_DATE = new Date('2026-05-30T00:00:00+05:30')
 
 function getTimeLeft() {
   const diff = Math.max(0, SHOW_DATE - Date.now())
@@ -60,7 +60,7 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
             letterSpacing: '0.08em',
             fontWeight: 600,
           }}>
-            CHENNAI · MAY 23RD, 2026
+            CHENNAI · MAY 30TH, 2026
           </p>
         </div>
       </div>
@@ -133,6 +133,7 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
         flexShrink: 0,
       }}>
         <iframe
+          key="venue-video"
           src={VENUE_VIDEO_SRC}
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"

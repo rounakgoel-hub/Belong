@@ -247,6 +247,17 @@ export default function AllStoriesScreen() {
         })}
 
         <div style={{ height: 16 }} />
+
+        <p style={{
+          fontSize: '0.6rem',
+          color: 'rgba(138,126,120,0.3)',
+          letterSpacing: '0.08em',
+          textAlign: 'center',
+          padding: '0.5rem 0 1rem',
+          margin: 0,
+        }}>
+          © 2026 Belong. · @belong.chennai
+        </p>
       </div>
 
       {/* ── Collapsible CTA drawer ─────────────────────────────── */}

@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback } from 'react'
 
-const DISMISS_THRESHOLD = 25
+const DISMISS_THRESHOLD = 40
 
 export function useDragToDismiss(onClose, scrollRef) {
   const [dy, setDy] = useState(0)

@@ -7,6 +7,7 @@ export function useSpotifySearch() {
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState(null)
   const timer = useRef(null)
+  const abortRef = useRef(null)
 
   useEffect(() => {
     if (!query.trim()) {
@@ -19,21 +20,29 @@ export function useSpotifySearch() {
     setError(null)
     setSearching(true)
     clearTimeout(timer.current)
+    abortRef.current?.abort()
+
+    let mounted = true
 
     timer.current = setTimeout(async () => {
+      abortRef.current = new AbortController()
       try {
-        const tracks = await searchTracks(query)
-        setResults(tracks)
+        const tracks = await searchTracks(query, abortRef.current.signal)
+        if (mounted) setResults(tracks)
       } catch (err) {
+        if (err.name === 'AbortError') return
         console.error('[Spotify search]', err.message)
-        setError(err.message)
-        setResults([])
+        if (mounted) { setError(err.message); setResults([]) }
       } finally {
-        setSearching(false)
+        if (mounted) setSearching(false)
       }
     }, 400)
 
-    return () => clearTimeout(timer.current)
+    return () => {
+      mounted = false
+      clearTimeout(timer.current)
+      abortRef.current?.abort()
+    }
   }, [query])
 
   function clear() {

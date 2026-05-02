@@ -204,7 +204,7 @@ export default function LandingScreen() {
         <div
           style={{
             maxWidth: 384, margin: '12px auto 0',
-            padding: '0 20px 40px',
+            padding: '0 20px 24px',
           }}
         >
           <button
@@ -219,6 +219,18 @@ export default function LandingScreen() {
             About Belong? →
           </button>
         </div>
+
+        {/* ── Copyright footer ────────────────────────────────── */}
+        <p style={{
+          fontSize: '0.6rem',
+          color: 'rgba(138,126,120,0.35)',
+          letterSpacing: '0.08em',
+          textAlign: 'center',
+          padding: '0.5rem 0 1.5rem',
+          margin: 0,
+        }}>
+          © 2026 Belong. · Concept & curation by Rounak Goel · @belong.chennai
+        </p>
 
       </div>
     </div>

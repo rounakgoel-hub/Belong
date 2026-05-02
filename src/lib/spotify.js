@@ -6,7 +6,7 @@
 
 const ITUNES_BASE = 'https://itunes.apple.com/search'
 
-export async function searchTracks(query) {
+export async function searchTracks(query, signal) {
   if (!query.trim()) return []
 
   const params = new URLSearchParams({
@@ -18,7 +18,7 @@ export async function searchTracks(query) {
     lang: 'en_us',
   })
 
-  const res = await fetch(`${ITUNES_BASE}?${params}`)
+  const res = await fetch(`${ITUNES_BASE}?${params}`, { signal })
 
   if (!res.ok) {
     throw new Error(`iTunes search failed — ${res.status}`)

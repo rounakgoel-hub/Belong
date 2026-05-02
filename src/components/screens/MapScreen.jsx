@@ -65,13 +65,7 @@ export default function MapScreen() {
     setLocationGranted(true)
   }
 
-  // Opens a pin's StorySheet from inside PostSubmission — closes drop flow first.
   const handleNearestPinClick = useCallback((pin) => {
-    setDropStep(null)
-    setPlacingPos(null)
-    setMapPanTo(null)
-    setLocationGranted(false)
-    setFooterCollapsed(false)
     setSelectedPin(pin)
   }, [])
 
@@ -96,12 +90,12 @@ export default function MapScreen() {
         className="flex items-center justify-between px-4 py-3 flex-shrink-0 relative"
         style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)', zIndex: 1100 }}
       >
-        <div>
+        <button onClick={() => navigate('/about')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
           <span className="font-extrabold text-lg leading-none" style={{ color: 'var(--text)' }}>
             Belong<span style={{ color: 'var(--red)' }}>.</span>
           </span>
           <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>Edition 1 · May 2026 · Dead Song Resurrection · Chennai</p>
-        </div>
+        </button>
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/stories')}
@@ -147,6 +141,13 @@ export default function MapScreen() {
           onVenuePinClick={handleVenuePinClick}
           panTo={mapPanTo}
         />
+
+        {/* Map watermark */}
+        <div style={{ position: 'absolute', bottom: 10, left: 10, zIndex: 800, pointerEvents: 'none' }}>
+          <p style={{ fontSize: '0.55rem', color: 'rgba(138,126,120,0.25)', letterSpacing: '0.06em', margin: 0 }}>
+            © Belong. by Rounak Goel
+          </p>
+        </div>
 
         {/* FAB */}
         {!dropStep && (

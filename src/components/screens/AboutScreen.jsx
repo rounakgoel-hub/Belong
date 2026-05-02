@@ -123,6 +123,12 @@ export default function AboutScreen() {
             <p style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
               Dead Song Resurrection Project
             </p>
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: 0 }}>
+              Bollywood, Hindi &amp; Desi
+            </p>
+            <p style={{ fontSize: '0.78rem', color: 'var(--red-l)', margin: 0 }}>
+              May 30th, 2026
+            </p>
           </div>
 
           {/* ── Section 5 — CTAs ────────────────────────────── */}
@@ -152,6 +158,33 @@ export default function AboutScreen() {
             >
               Take a quick glance at Chennai's Musical Storyboard →
             </button>
+          </div>
+
+          {/* ── Copyright footer ──────────────────────────────── */}
+          <div style={{
+            padding: '1.5rem 1.25rem 2rem',
+            textAlign: 'center',
+            borderTop: '1px solid var(--border)',
+            marginTop: '1rem',
+          }}>
+            <p style={{
+              fontSize: '0.6rem',
+              color: 'rgba(138,126,120,0.35)',
+              letterSpacing: '0.08em',
+              lineHeight: 1.8,
+              margin: 0,
+            }}>
+              © 2026 Belong. All rights reserved.<br />
+              Concept & curation by Rounak Goel<br />
+              <a
+                href="https://www.instagram.com/belong.chennai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'rgba(138,126,120,0.5)', textDecoration: 'none' }}
+              >
+                @belong.chennai
+              </a>
+            </p>
           </div>
 
         </div>
