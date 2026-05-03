@@ -27,32 +27,33 @@ export default function DropDrawer({
   const scrollRef = useRef(null)
   const { sheetHandlers, sheetStyle } = useDragToDismiss(handleClose, scrollRef)
   // Prevents a late-resolving GPS callback from firing after the user already moved on.
-  const locationActiveRef = useRef(false)
+  // Keep latest callback in a ref — avoids it being an effect dependency
+  // (plain functions in parent re-create on every render, causing constant retriggers)
+  const onLocationReadyRef = useRef(onLocationReady)
+  useEffect(() => { onLocationReadyRef.current = onLocationReady }, [onLocationReady])
 
   // Reset local state when the drawer is fully closed.
   useEffect(() => {
     if (!step) { setPendingPin(null); setLocationPanned(false) }
   }, [step])
 
-  // Silently request geolocation as soon as placing step opens.
+  // Request geolocation every time the placing step opens.
   useEffect(() => {
-    if (step !== 'placing') {
-      locationActiveRef.current = false
-      return
-    }
-    if (locationActiveRef.current) return
-    locationActiveRef.current = true
-
+    if (step !== 'placing') return
     if (!navigator.geolocation) return
+
+    let cancelled = false
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        if (!locationActiveRef.current) return
+        if (cancelled) return
         setLocationPanned(true)
-        onLocationReady?.({ lat: coords.latitude, lng: coords.longitude })
+        onLocationReadyRef.current?.({ lat: coords.latitude, lng: coords.longitude })
       },
-      () => {} // denied or unavailable — user falls back to manual tap, no message shown
+      () => {}, // denied or unavailable — user falls back to manual tap
+      { maximumAge: 60000, timeout: 8000 }
     )
-  }, [step, onLocationReady])
+    return () => { cancelled = true }
+  }, [step])
 
   function handleClose() {
     setPendingPin(null)
@@ -63,6 +64,13 @@ export default function DropDrawer({
     if (!songName.trim()) { toast('Name the dead song'); return }
     if (!memory.trim()) { toast('Tell us why it deserved better'); return }
     if (!position) { toast('Tap the map to drop your pin first'); return }
+
+    const { count } = await supabase
+      .from('pins')
+      .select('id', { count: 'exact', head: true })
+      .eq('anon_id', getAnonId())
+      .eq('edition_id', EDITION_ID)
+    if (count >= 3) { toast("You've dropped 3 songs — that's your lot for this edition ♪"); return }
 
     // ① Build display pin from local form data — album art and preview_url are
     //    already in memory from the Spotify search; no re-fetch needed.

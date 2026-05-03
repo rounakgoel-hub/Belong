@@ -18,6 +18,8 @@ export default function MapScreen() {
   const toast = useToast()
   const myAnonId = getAnonId()
 
+  const pinLimitReached = pins.filter(p => p.anon_id === myAnonId).length >= 3
+
   const [dropStep, setDropStep] = useState(null) // null | 'placing' | 'form' | 'done'
   const [placingPos, setPlacingPos] = useState(null)
   const [mapPanTo, setMapPanTo] = useState(null)
@@ -59,11 +61,10 @@ export default function MapScreen() {
     if (!dropStep) setVenueSheetOpen(true)
   }, [dropStep])
 
-  function handleLocationReady(latlng) {
-    // Pan the map to approximate location — user still taps manually to place the pin.
+  const handleLocationReady = useCallback((latlng) => {
     setMapPanTo(latlng)
     setLocationGranted(true)
-  }
+  }, [])
 
   const handleNearestPinClick = useCallback((pin) => {
     setSelectedPin(pin)
@@ -152,8 +153,8 @@ export default function MapScreen() {
         {/* FAB */}
         {!dropStep && (
           <button
-            onClick={openDrop}
-            aria-label="Resurrect a song"
+            onClick={pinLimitReached ? undefined : openDrop}
+            aria-label="Drop your song"
             style={{
               position: 'absolute',
               bottom: footerCollapsed ? 60 : 156,
@@ -168,11 +169,17 @@ export default function MapScreen() {
               justifyContent: 'center',
               boxShadow: '0 4px 20px rgba(181,41,0,0.5)',
               transition: 'bottom 0.2s ease',
+              opacity: pinLimitReached ? 0.5 : 1,
+              pointerEvents: pinLimitReached ? 'none' : 'auto',
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M11 3v16M3 11h16" stroke="var(--text)" strokeWidth="2.2" strokeLinecap="round"/>
-            </svg>
+            {pinLimitReached ? (
+              <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text)', textAlign: 'center', lineHeight: 1.2 }}>3/3 ♪</span>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 3v16M3 11h16" stroke="var(--text)" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
+            )}
           </button>
         )}
 
@@ -224,11 +231,15 @@ export default function MapScreen() {
                     </div>
                   </div>
                   <button
-                    onClick={openDrop}
+                    onClick={pinLimitReached ? undefined : openDrop}
                     className="w-full py-3 rounded-xl font-bold text-sm"
-                    style={{ background: 'var(--red)', color: 'var(--text)' }}
+                    style={{
+                      background: 'var(--red)', color: 'var(--text)',
+                      opacity: pinLimitReached ? 0.5 : 1,
+                      pointerEvents: pinLimitReached ? 'none' : 'auto',
+                    }}
                   >
-                    Drop your song
+                    {pinLimitReached ? '3/3 ♪' : 'Drop your song'}
                   </button>
                 </div>
               )}

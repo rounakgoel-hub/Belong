@@ -4,60 +4,107 @@ import { supabase } from '../../lib/supabase'
 import { getAnonId } from '../../lib/anonId'
 import { EDITION_ID } from '../../lib/constants'
 
+function isValidContact(val) {
+  const phone = /^[6-9]\d{9}$/.test(val.replace(/\s/g, ''))
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+  return phone || email
+}
+
 export default function WaitlistModal({ open, onClose, toast }) {
   const [contact, setContact] = useState('')
   const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function submit() {
-    if (!contact.trim()) return
+    const val = contact.trim()
+
+    if (!val || !isValidContact(val)) {
+      toast?.('Enter a valid phone number or email')
+      return
+    }
+
     setLoading(true)
+
+    // Duplicate check — one entry per anon_id per edition
+    const { count } = await supabase
+      .from('waitlist')
+      .select('id', { count: 'exact', head: true })
+      .eq('anon_id', getAnonId())
+      .eq('edition_id', EDITION_ID)
+
+    if (count > 0) {
+      toast?.("You're already on the list ♪")
+      setLoading(false)
+      setDone(true)
+      return
+    }
+
     await supabase.from('waitlist').insert({
       edition_id: EDITION_ID,
-      contact: contact.trim(),
+      contact: val,
       anon_id: getAnonId(),
+      created_at: new Date().toISOString(),
     })
+
     setLoading(false)
     setDone(true)
   }
 
+  function handleClose() {
+    onClose()
+    // Reset after sheet closes so re-opening is fresh
+    setTimeout(() => { setContact(''); setDone(false) }, 400)
+  }
+
   return (
-    <BottomSheet open={open} onClose={onClose} maxHeight="70vh">
+    <BottomSheet open={open} onClose={handleClose} maxHeight="70vh">
       <div className="px-5 pb-10 pt-4">
         {done ? (
-          <div className="text-center py-8">
-            <p className="text-2xl font-extrabold text-cream mb-3">You're in.</p>
-            <p className="text-muted text-sm leading-relaxed">
-              When the dead songs play live, we'll find you a seat.
+          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+            <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.5rem' }}>
+              You're on the list.
+            </p>
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.65 }}>
+              When The Recall Room opens —<br />you'll hear from us first.
             </p>
             <button
-              onClick={onClose}
-              className="mt-8 text-muted text-sm underline underline-offset-4"
+              onClick={handleClose}
+              className="mt-8 text-sm underline underline-offset-4"
+              style={{ color: 'var(--muted)' }}
             >
-              Back to the map
+              Done
             </button>
           </div>
         ) : (
           <>
-            <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Save your spot</p>
-            <h2 className="text-cream font-extrabold text-xl mb-2">Be in the room when the songs play live</h2>
-            <p className="text-muted text-sm leading-relaxed mb-6">
-              No ticket yet. Just tell us you want to be there — ticketing opens on priority.
+            <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>
+              Save your spot
+            </p>
+            <h2 className="font-extrabold text-xl mb-2" style={{ color: 'var(--text)' }}>
+              Be in the room when the songs play live
+            </h2>
+            <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Leave your number or email — when The Recall Room opens, you'll hear from us first.
             </p>
 
             <input
               type="text"
               value={contact}
               onChange={e => setContact(e.target.value)}
-              placeholder="Phone or email"
-              className="w-full bg-surface2 rounded-xl px-4 py-3 text-cream text-sm placeholder:text-muted outline-none mb-4"
-              style={{ border: '1px solid var(--border)' }}
+              onKeyDown={e => e.key === 'Enter' && submit()}
+              placeholder="Phone / WhatsApp or email"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none mb-4"
+              style={{
+                background: 'var(--surface2)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+              }}
             />
 
             <button
               onClick={submit}
-              disabled={loading || !contact.trim()}
-              className="w-full py-4 rounded-2xl font-bold text-cream text-base transition-all"
+              disabled={loading}
+              className="w-full py-4 rounded-2xl font-bold text-base transition-all"
               style={{
                 background: contact.trim() ? 'var(--gold)' : 'var(--surface2)',
                 color: contact.trim() ? 'var(--bg)' : 'var(--muted)',
