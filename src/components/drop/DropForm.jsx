@@ -86,11 +86,14 @@ export default function DropForm({ onSubmit, onCancel }) {
         <div className="flex flex-col gap-2">
           <div className="relative">
             <input
-              type="text"
+              type="search"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search Spotify for the song…"
               autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
               className="w-full rounded-xl px-4 py-3 text-sm outline-none pr-10"
               style={inputStyle}
             />
