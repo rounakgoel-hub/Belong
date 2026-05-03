@@ -326,14 +326,14 @@ export default function StorySheet({ pin, open, onClose, toast }) {
         {/* Contributor row */}
         <div className="flex items-center justify-between mb-4">
           {hasArt ? (
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>{pin.handle || 'Anonymous'} · Chennai</p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>Chennai · The Recall Room</p>
           ) : (
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar handle={pin.handle} size={44} />
               <div className="flex-1 min-w-0">
                 <p className="font-extrabold text-base leading-tight truncate" style={{ color: 'var(--text)' }}>{pin.song_name}</p>
                 {pin.artist && <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--muted)' }}>{pin.artist}</p>}
-                <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{pin.handle || 'Anonymous'} · Chennai</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>Chennai · The Recall Room</p>
               </div>
 
               {/* Play button for pins without art */}
@@ -383,13 +383,13 @@ export default function StorySheet({ pin, open, onClose, toast }) {
           }}
         >
           <span>〰</span>
-          <span>I remembered this</span>
-          <span className="ml-1 opacity-60">· {count} remembered this</span>
+          <span>I know this feeling</span>
+          <span className="ml-1 opacity-60">· {count} felt this</span>
         </button>
 
         {/* Comments header */}
         <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'var(--muted)' }}>
-          Memories of this song
+          More memories of this song
         </p>
 
         {comments.length === 0 && (

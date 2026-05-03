@@ -45,7 +45,7 @@ export default function DropForm({ onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="px-5 pb-8 pt-2 flex flex-col gap-4">
-      <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--muted)' }}>The song</p>
+      <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--muted)' }}>Song name + artist</p>
 
       {/* ── Selected track card ─────────────────────────────── */}
       {selected ? (
@@ -164,11 +164,12 @@ export default function DropForm({ onSubmit, onCancel }) {
       )}
 
       {/* ── Memory ─────────────────────────────────────────── */}
+      <p className="text-xs uppercase tracking-widest -mb-2" style={{ color: 'var(--muted)' }}>Why does it stay with you?</p>
       <div className="relative">
         <textarea
           value={memory}
           onChange={e => { if (e.target.value.length <= MEMORY_MAX) setMemory(e.target.value) }}
-          placeholder="It came back to me out of nowhere one day and I realised…"
+          placeholder="It came back to me one day and I realised…"
           rows={4}
           className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"
           style={inputStyle}
@@ -182,11 +183,12 @@ export default function DropForm({ onSubmit, onCancel }) {
       </div>
 
       {/* ── Handle ─────────────────────────────────────────── */}
+      <p className="text-xs uppercase tracking-widest -mb-2" style={{ color: 'var(--muted)' }}>Your name or handle</p>
       <input
         type="text"
         value={handle}
         onChange={e => setHandle(e.target.value)}
-        placeholder="Or stay anonymous. The song speaks for you."
+        placeholder="Or stay anonymous. The song speaks for itself."
         className="w-full rounded-xl px-4 py-3 text-sm outline-none"
         style={inputStyle}
       />
@@ -196,7 +198,7 @@ export default function DropForm({ onSubmit, onCancel }) {
         className="w-full py-4 rounded-2xl font-bold text-base mt-1"
         style={{ background: 'var(--red)', color: 'var(--text)' }}
       >
-        Bring it back
+        Put it on the map
       </button>
 
       <button

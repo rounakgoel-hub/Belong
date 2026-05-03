@@ -18,7 +18,7 @@ export default function CountdownStrip() {
           className="w-2 h-2 rounded-full"
           style={{ background: 'var(--red)', opacity: blink ? 1 : 0.2, transition: 'opacity 0.3s' }}
         />
-        <span>Map resets in {days} day{days !== 1 ? 's' : ''}, to make room for the next edition · Curate Chennai's first crowdsourced live setlist</span>
+        <span>Map live until {days} day{days !== 1 ? 's' : ''}. It resets to make room for the next edition · Curate Chennai's first crowdsourced live setlist</span>
       </div>
       <span className="text-cream font-semibold ml-3 flex-shrink-0">{days}d</span>
     </div>

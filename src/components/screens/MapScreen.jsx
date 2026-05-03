@@ -94,15 +94,15 @@ export default function MapScreen() {
           <span className="font-extrabold text-lg leading-none" style={{ color: 'var(--text)' }}>
             Belong<span style={{ color: 'var(--red)' }}>.</span>
           </span>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>Edition 1 · May 2026 · Dead Song Resurrection · Chennai</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>Vol. 1 · The Recall Room · Chennai</p>
         </button>
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/stories')}
             className="text-right"
           >
-            <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{pins.length} dead songs back</p>
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>Explore Chennai's living playlist →</p>
+            <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{pins.length} song stories on the map</p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>Tap to explore Chennai's living playlist →</p>
           </button>
           <button
             onClick={toggleTheme}
@@ -209,13 +209,13 @@ export default function MapScreen() {
                   className="w-full px-5 py-3 text-left"
                   onClick={() => setFooterCollapsed(false)}
                 >
-                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Drop a song the world forgot.</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Drop a song you think people stopped playing.</p>
                 </button>
               ) : (
                 <div className="px-5 py-4">
-                  <p className="font-bold text-base mb-0.5" style={{ color: 'var(--text)' }}>Drop a song the world forgot.</p>
+                  <p className="font-bold text-base mb-0.5" style={{ color: 'var(--text)' }}>Drop a song you think people stopped playing.</p>
                   <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--muted)' }}>
-                    The ones worth sharing end up on a stage — performed live, together.
+                    We curate the setlist from all that you've dropped and relive them live, together!
                   </p>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--red-l)' }}>
@@ -228,7 +228,7 @@ export default function MapScreen() {
                     className="w-full py-3 rounded-xl font-bold text-sm"
                     style={{ background: 'var(--red)', color: 'var(--text)' }}
                   >
-                    Resurrect a song
+                    Drop your song
                   </button>
                 </div>
               )}

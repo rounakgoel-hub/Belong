@@ -39,12 +39,10 @@ export default function WaitlistModal({ open, onClose, toast }) {
           </div>
         ) : (
           <>
-            <h2 className="text-cream font-extrabold text-xl mb-2">Save your spot</h2>
-            <p className="text-muted text-sm leading-relaxed mb-1">
-              Be in the room when the dead songs play.
-            </p>
+            <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>Save your spot</p>
+            <h2 className="text-cream font-extrabold text-xl mb-2">Be in the room when the songs play live</h2>
             <p className="text-muted text-sm leading-relaxed mb-6">
-              No ticket yet. Just tell us you want to be there — we'll find you a seat when the time comes.
+              No ticket yet. Just tell us you want to be there — ticketing opens on priority.
             </p>
 
             <input

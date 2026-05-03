@@ -101,11 +101,11 @@ export default function AllStoriesScreen() {
           Belong<span style={{ color: 'var(--red)' }}>.</span>
         </h1>
         <p className="text-sm leading-snug" style={{ color: 'var(--muted)' }}>
-          Chennai's living setlist.
+          Chennai's Recall Room.
           {pins.length > 0 && (
-            <> <span className="font-semibold" style={{ color: 'var(--text)' }}>{pins.length}</span> song{pins.length !== 1 ? 's' : ''} resurrected.</>
+            <> <span className="font-semibold" style={{ color: 'var(--text)' }}>{pins.length}</span> song{pins.length !== 1 ? 's' : ''} dropped.</>
           )}
-          {' '}Growing until May 2026.
+          {' '}Growing until May 30, 2026.
         </p>
       </div>
 
@@ -223,7 +223,7 @@ export default function AllStoriesScreen() {
                   {/* Resonance + memory teaser */}
                   {pin.resonance_count > 0 && (
                     <p className="text-xs mt-1.5" style={{ color: 'var(--muted)', opacity: 0.7 }}>
-                      {pin.resonance_count} remembered this
+                      {pin.resonance_count} felt this
                     </p>
                   )}
                   {pin.memory && (
@@ -256,7 +256,7 @@ export default function AllStoriesScreen() {
           padding: '0.5rem 0 1rem',
           margin: 0,
         }}>
-          © 2026 Belong. · @belong.chennai
+          © 2026 Belong. · The Recall Room · @belong.chennai
         </p>
       </div>
 
@@ -305,7 +305,7 @@ export default function AllStoriesScreen() {
               className="w-full py-3 rounded-2xl font-bold text-sm"
               style={{ background: 'var(--red)', color: 'var(--text)' }}
             >
-              Resurrect a song
+              Drop your song
             </button>
             <button
               onClick={handleInvite}

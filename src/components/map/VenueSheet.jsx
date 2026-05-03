@@ -77,7 +77,7 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
             textTransform: 'uppercase',
             marginBottom: 16,
           }}>
-            Until the songs you've all added play
+            Until the songs play live
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20 }}>
             {[
@@ -118,7 +118,7 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
           textAlign: 'center',
           margin: 0,
         }}>
-          This is where it all plays out.
+          This is where the songs become real.
         </p>
 
       </div>
@@ -166,7 +166,7 @@ export default function VenueSheet({ open, onClose, onOpenWaitlist }) {
             cursor: 'pointer',
           }}
         >
-          Reserve your spot
+          Reserve your spot in the room
         </button>
 
         <a

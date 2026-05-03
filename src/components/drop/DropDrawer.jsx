@@ -144,7 +144,7 @@ export default function DropDrawer({
         {locationPanned ? (
           <>
             <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text)' }}>
-              We've panned the map to your approximate location. We'd love for you to place your pin to around where you are in Chennai right now.
+              We've panned the map to your approximate location. Drop your pin to around where you are in Chennai right now.
             </p>
             <p className="text-xs mb-3" style={{ color: 'var(--muted)' }}>
               Your location data is never stored — we shift it slightly to keep you anonymous.
@@ -152,7 +152,7 @@ export default function DropDrawer({
           </>
         ) : (
           <p className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>
-            Tap the map to place your pin.
+            Tap the map to place your pin
           </p>
         )}
         <div className="flex items-center justify-between">
@@ -208,7 +208,8 @@ export default function DropDrawer({
       <div style={panelStyle} {...sheetHandlers}>
         {handle}
         <div className="px-5 pt-1 pb-1 flex-shrink-0">
-          <h2 className="text-cream font-extrabold text-lg">Drop a song the world forgot.</h2>
+          <h2 className="text-cream font-extrabold text-lg">Drop your song</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>Tap the map to mark your spot, then tell us the song.</p>
         </div>
         <div ref={scrollRef} className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DropForm onSubmit={handleSubmit} onCancel={handleClose} />

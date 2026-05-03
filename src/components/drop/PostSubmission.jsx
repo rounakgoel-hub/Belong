@@ -46,7 +46,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
 
   async function handleShare() {
     const title = 'Belong.'
-    const text = "I've contributed to Chennai's first crowd-sourced music socials — follow the community and reserve your spot for the show @belong.chennai"
+    const text = "I've contributed to Chennai's first crowd-sourced live setlist — follow the community and reserve your spot for the show @belong.chennai"
     const url = 'https://www.instagram.com/belong.chennai/'
     try {
       if (navigator.share) {
@@ -65,7 +65,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
 
   async function handleInvite() {
     const title = 'Belong.'
-    const text = "I've contributed to Chennai's first crowd-sourced music socials — I'd love for you to share a song too at the living song map:"
+    const text = "I've contributed to Chennai's first crowd-sourced live setlist — I'd love for you to share a song too at the living song map:"
     const url = 'https://belong-seven.vercel.app/'
     try {
       if (navigator.share) {
@@ -150,7 +150,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
             </div>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: 'var(--muted)', opacity: 0.55 }}>Belong. · Edition 1 · Chennai</span>
+            <span className="text-xs" style={{ color: 'var(--muted)', opacity: 0.55 }}>Belong. · Vol. 1 — The Recall Room · Chennai</span>
             <a
               href="https://www.instagram.com/belong.chennai/"
               target="_blank"
@@ -186,7 +186,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.6rem' }}>
             <span style={{ color: 'var(--red)', fontSize: '0.8rem', marginTop: '0.1rem' }}>◎</span>
             <p style={{ fontSize: '0.78rem', color: 'var(--text)', lineHeight: 1.5, margin: 0 }}>
-              Your song is <strong>{insights.venueDistKm}km</strong> from the stage. On May 30th, it travels there.
+              Your song is <strong>{insights.venueDistKm}km</strong> from the room. On May 30th, it travels there.
             </p>
           </div>
 
@@ -218,7 +218,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
       {/* 3. Headline ───────────────────────────────────────── */}
       <div style={{ textAlign: 'center' }}>
         <p style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', margin: '0 0 4px' }}>
-          You just reminded us of a true forgotten song!
+          You just reminded someone of a song they probably forgot!
         </p>
         <p style={{ fontSize: '0.75rem', color: 'var(--muted)', margin: 0 }}>
           Now let more of the city in.
@@ -229,26 +229,29 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
       <div className="flex flex-col gap-2.5">
         <button
           onClick={handleShare}
-          className="w-full py-4 rounded-2xl font-bold text-sm"
+          className="w-full py-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-0.5"
           style={{ background: 'var(--red)', color: 'var(--text)' }}
         >
-          Share the resurrection
+          <span>Share your drop</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 400, opacity: 0.75 }}>Let the city know</span>
         </button>
 
         <button
           onClick={handleInvite}
-          className="w-full py-4 rounded-2xl font-bold text-sm"
+          className="w-full py-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-0.5"
           style={{ border: '1px solid var(--border)', color: 'var(--muted)', background: 'transparent' }}
         >
-          Invite someone whose taste you trust
+          <span>Invite someone whose taste you trust</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 400, opacity: 0.75 }}>They should be here too</span>
         </button>
 
         <button
           onClick={onWaitlist}
-          className="w-full py-4 rounded-2xl font-bold text-sm"
+          className="w-full py-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-0.5"
           style={{ border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent' }}
         >
-          Be in the room when this plays live
+          <span>Reserve your spot in the room</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 400, opacity: 0.75 }}>Ticketing opens on priority</span>
         </button>
       </div>
 

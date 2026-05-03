@@ -130,6 +130,40 @@ html, body {
   50%       { opacity: 0.5; }
 }
 
+/* Belong. period pulse */
+@keyframes periodPulse {
+  0%, 100% { opacity: 1;   }
+  50%      { opacity: 0.15; }
+}
+
+/* Landing background — pulsing red blobs */
+@keyframes pinGlow {
+  0%, 100% { opacity: 0.2; transform: scale(1);    }
+  50%      { opacity: 0.6; transform: scale(1.15); }
+}
+@keyframes blobDrift1 {
+  0%   { transform: translate(0px, 0px);       }
+  25%  { transform: translate(180px, -120px);  }
+  50%  { transform: translate(260px, 80px);    }
+  75%  { transform: translate(60px, 200px);    }
+  100% { transform: translate(0px, 0px);       }
+}
+@keyframes blobDrift2 {
+  0%   { transform: translate(0px, 0px);       }
+  25%  { transform: translate(-160px, 140px);  }
+  50%  { transform: translate(-240px, -60px);  }
+  75%  { transform: translate(-80px, -180px);  }
+  100% { transform: translate(0px, 0px);       }
+}
+@keyframes blobDrift3 {
+  0%   { transform: translate(0px, 0px);       }
+  25%  { transform: translate(120px, 160px);   }
+  50%  { transform: translate(-100px, 220px);  }
+  75%  { transform: translate(-200px, -80px);  }
+  100% { transform: translate(0px, 0px);       }
+}
+
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
