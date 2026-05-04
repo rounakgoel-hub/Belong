@@ -27,7 +27,12 @@ export function useSpotifySearch() {
         const tracks = await searchTracks(query)
         if (mounted) setResults(tracks)
       } catch (err) {
-        console.error('[search]', err.message)
+        console.error('[Search error]', {
+          message: err.message,
+          name: err.name,
+          stack: err.stack,
+          type: typeof err,
+        })
         if (mounted) { setError(err.message); setResults([]) }
       } finally {
         if (mounted) setSearching(false)

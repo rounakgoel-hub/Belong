@@ -16,6 +16,12 @@ function mapResults(json) {
 export async function searchTracks(query) {
   if (!query.trim()) return []
   const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+  console.log('[Search response]', {
+    status: res.status,
+    statusText: res.statusText,
+    ok: res.ok,
+    url: res.url,
+  })
   if (!res.ok) throw new Error(`search ${res.status}`)
   const json = await res.json()
   return mapResults(json)
