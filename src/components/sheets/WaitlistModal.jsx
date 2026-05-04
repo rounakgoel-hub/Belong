@@ -12,6 +12,7 @@ function isValidContact(val) {
 
 export default function WaitlistModal({ open, onClose, toast }) {
   const [contact, setContact] = useState('')
+  const [city, setCity] = useState('')
   const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -42,6 +43,7 @@ export default function WaitlistModal({ open, onClose, toast }) {
     await supabase.from('waitlist').insert({
       edition_id: EDITION_ID,
       contact: val,
+      city: city.trim() || null,
       anon_id: getAnonId(),
       created_at: new Date().toISOString(),
     })
@@ -53,7 +55,7 @@ export default function WaitlistModal({ open, onClose, toast }) {
   function handleClose() {
     onClose()
     // Reset after sheet closes so re-opening is fresh
-    setTimeout(() => { setContact(''); setDone(false) }, 400)
+    setTimeout(() => { setContact(''); setCity(''); setDone(false) }, 400)
   }
 
   return (
@@ -93,11 +95,29 @@ export default function WaitlistModal({ open, onClose, toast }) {
               onChange={e => setContact(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && submit()}
               placeholder="Phone / WhatsApp or email"
-              className="w-full rounded-xl px-4 py-3 text-sm outline-none mb-4"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none mb-3"
               style={{
                 background: 'var(--surface2)',
                 border: '1px solid var(--border)',
                 color: 'var(--text)',
+              }}
+            />
+            <input
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none mb-4"
+              type="text"
+              placeholder="Your city (optional)"
+              value={city}
+              onChange={e => setCity(e.target.value)}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="words"
+              spellCheck={false}
+              name="waitlist-city-x4p"
+              style={{
+                background: 'var(--surface2)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                marginTop: '-0.3rem',
               }}
             />
 

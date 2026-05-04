@@ -1,8 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAppContext } from '../../context/AppContext'
+import { supabase } from '../../lib/supabase'
+import { getAnonId } from '../../lib/anonId'
 
 const VENUE_LAT = 13.0671646
 const VENUE_LNG = 80.259706
+const CHENNAI_LAT = 13.0827
+const CHENNAI_LNG = 80.2707
 
 function haversineM(lat1, lng1, lat2, lng2) {
   const R = 6371000
@@ -22,6 +26,43 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
   // Everything — art, song name bars, memory — waits on the same gate so the
   // whole card reveals in one smooth transition.
   const [ready, setReady] = useState(!hasArt)
+
+  const [showCityInput, setShowCityInput] = useState(false)
+  const [cityContact, setCityContact] = useState('')
+  const [cityInterestSaved, setCityInterestSaved] = useState(false)
+  const [cityName, setCityName] = useState(null)
+
+  const distFromChennaiKm = position
+    ? haversineM(position.lat, position.lng, CHENNAI_LAT, CHENNAI_LNG) / 1000
+    : null
+  const isOutsideChennai = distFromChennaiKm !== null && distFromChennaiKm > 50
+
+  useEffect(() => {
+    if (!isOutsideChennai || !position) return
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.lat}&lon=${position.lng}&format=json`)
+      .then(r => r.json())
+      .then(data => {
+        const name = data.address?.city || data.address?.town || data.address?.state_district || 'your city'
+        setCityName(name)
+      })
+      .catch(() => setCityName('your city'))
+  }, [isOutsideChennai])
+
+  function handleCityInterest() {
+    setShowCityInput(true)
+  }
+
+  async function saveCityInterest() {
+    if (!cityContact.trim()) return
+    await supabase.from('city_interest').insert({
+      city: cityName,
+      contact: cityContact.trim(),
+      anon_id: getAnonId(),
+      created_at: new Date().toISOString(),
+    })
+    setCityInterestSaved(true)
+    setShowCityInput(false)
+  }
 
 
   const insights = useMemo(() => {
@@ -215,7 +256,101 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
         </div>
       )}
 
-      {/* 3. Headline ───────────────────────────────────────── */}
+      {/* 3. Out-of-city detection ─────────────────────────── */}
+      {isOutsideChennai && cityName && (
+        <div style={{
+          width: '100%',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 10,
+          padding: '1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.65rem',
+        }}>
+          <p style={{
+            fontSize: '0.58rem',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: 'var(--muted)',
+            fontWeight: 600,
+            margin: 0,
+          }}>Dropping in from {cityName}?</p>
+          <p style={{
+            fontSize: '0.82rem',
+            color: 'var(--text)',
+            lineHeight: 1.55,
+            fontWeight: 500,
+            margin: 0,
+          }}>
+            The Recall Room begins in Chennai — but it's coming to more cities. We'll find you when it does.
+          </p>
+          {cityInterestSaved ? (
+            <p style={{ fontSize: '0.75rem', color: 'var(--red-l)', fontWeight: 600, margin: 0 }}>
+              We'll find you. ♪
+            </p>
+          ) : showCityInput ? (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                placeholder="Phone / WhatsApp or email"
+                value={cityContact}
+                onChange={e => setCityContact(e.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                name="city-contact-x9m"
+                style={{
+                  flex: 1,
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  padding: '0.6rem 0.75rem',
+                  fontSize: '0.82rem',
+                  borderRadius: 6,
+                  fontFamily: 'var(--sans)',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={saveCityInterest}
+                style={{
+                  background: 'var(--red)',
+                  color: 'var(--cream)',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '0.6rem 0.9rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--sans)',
+                }}
+              >→</button>
+            </div>
+          ) : (
+            <button
+              onClick={handleCityInterest}
+              style={{
+                background: 'var(--red)',
+                color: 'var(--cream)',
+                border: 'none',
+                borderRadius: 8,
+                padding: '0.65rem 1rem',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'var(--sans)',
+                letterSpacing: '0.06em',
+              }}
+            >
+              Let us know when it arrives →
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* 4. Headline ───────────────────────────────────────── */}
       <div style={{ textAlign: 'center' }}>
         <p style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', margin: '0 0 4px' }}>
           You just reminded someone of a song they probably forgot!
@@ -225,7 +360,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
         </p>
       </div>
 
-      {/* 4. CTAs ───────────────────────────────────────────── */}
+      {/* 5. CTAs ───────────────────────────────────────────── */}
       <div className="flex flex-col gap-2.5">
         <button
           onClick={handleShare}
@@ -255,7 +390,7 @@ export default function PostSubmission({ pin, isFirst, onWaitlist, onBack, toast
         </button>
       </div>
 
-      {/* 5. Back link ──────────────────────────────────────── */}
+      {/* 6. Back link ──────────────────────────────────────── */}
       <button
         onClick={onBack}
         className="text-sm underline underline-offset-4 text-center"

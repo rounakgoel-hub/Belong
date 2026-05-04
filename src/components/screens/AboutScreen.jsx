@@ -136,6 +136,15 @@ export default function AboutScreen() {
             <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.4, margin: 0 }}>
               I've been holding onto forgotten songs my whole life. In case you are too, let's relive them together.
             </p>
+            <p style={{
+              fontSize: '0.88rem',
+              color: 'var(--red-l)',
+              fontWeight: 600,
+              fontStyle: 'italic',
+              marginTop: '0.5rem',
+            }}>
+              Chennai is where this begins.
+            </p>
           </RevealItem>
 
           {/* ── Video ────────────────────────────────────────── */}
