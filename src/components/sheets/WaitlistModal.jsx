@@ -86,7 +86,7 @@ export default function WaitlistModal({ open, onClose, toast }) {
               Be in the room when the songs play live
             </h2>
             <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-              Leave your number or email — when The Recall Room opens, you'll hear from us first.
+              Leave your number or email — when The Recall Room opens bookings, you'll hear from us first.
             </p>
 
             <input
