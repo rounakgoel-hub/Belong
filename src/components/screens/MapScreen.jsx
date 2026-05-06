@@ -91,7 +91,7 @@ export default function MapScreen() {
         className="flex items-center justify-between px-4 py-3 flex-shrink-0 relative"
         style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)', zIndex: 1100 }}
       >
-        <button onClick={() => navigate('/about')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
           <span className="font-extrabold text-lg leading-none" style={{ color: 'var(--text)' }}>
             Belong<span style={{ color: 'var(--red)' }}>.</span>
           </span>
